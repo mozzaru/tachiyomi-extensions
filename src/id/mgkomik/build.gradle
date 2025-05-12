@@ -1,9 +1,7 @@
 ext {
-    extName = 'MG Komik'
-    extClass = '.MGKomik'
-    baseUrl = 'https://mgkomik.org'
-    overrideVersionCode = 15
-    isNsfw = false
+    extName = 'mgkomik'
+    extClass = '.mgkomik'
+    extVersionCode = 1
 }
 
 apply from: "$rootDir/common.gradle"
