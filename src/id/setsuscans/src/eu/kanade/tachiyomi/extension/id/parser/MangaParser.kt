@@ -1,0 +1,91 @@
+package eu.kanade.tachiyomi.extension.id.parser
+
+import okhttp3.Headers
+import okhttp3.HttpUrl
+import okhttp3.Interceptor
+import eu.kanade.tachiyomi.extension.id.parser.config.ConfigKey
+import eu.kanade.tachiyomi.extension.id.parser.config.MangaSourceConfig
+import eu.kanade.tachiyomi.extension.id.parser.model.*
+import eu.kanade.tachiyomi.extension.id.parser.model.search.MangaSearchQuery
+import eu.kanade.tachiyomi.extension.id.parser.model.search.MangaSearchQueryCapabilities
+import eu.kanade.tachiyomi.extension.id.parser.util.LinkResolver
+import eu.kanade.tachiyomi.extension.id.parser.util.convertToMangaSearchQuery
+import eu.kanade.tachiyomi.extension.id.parser.util.toMangaListFilterCapabilities
+import java.util.*
+
+public interface MangaParser : Interceptor {
+
+	public val source: MangaParserSource
+
+	/**
+	 * Supported [SortOrder] variants. Must not be empty.
+	 *
+	 * For better performance use [EnumSet] for more than one item.
+	 */
+	public val availableSortOrders: Set<SortOrder>
+
+	public val searchQueryCapabilities: MangaSearchQueryCapabilities
+
+	public val config: MangaSourceConfig
+
+	public val authorizationProvider: MangaParserAuthProvider?
+		get() = this as? MangaParserAuthProvider
+
+	/**
+	 * Provide default domain and available alternatives, if any.
+	 *
+	 * Never hardcode domain in requests, use [domain] instead.
+	 */
+	public val configKeyDomain: ConfigKey.Domain
+
+	public val domain: String
+
+	public suspend fun getList(query: MangaSearchQuery): List<Manga>
+
+	/**
+	 * Parse details for [Manga]: chapters list, description, large cover, etc.
+	 * Must return the same manga, may change any fields excepts id, url and source
+	 * @see Manga.copy
+	 */
+	public suspend fun getDetails(manga: Manga): Manga
+
+	/**
+	 * Parse pages list for specified chapter.
+	 * @see MangaPage for details
+	 */
+	public suspend fun getPages(chapter: MangaChapter): List<MangaPage>
+
+	/**
+	 * Fetch direct link to the page image.
+	 */
+	public suspend fun getPageUrl(page: MangaPage): String
+
+	public suspend fun getFilterOptions(): MangaListFilterOptions
+
+	/**
+	 * Parse favicons from the main page of the source`s website
+	 */
+	public suspend fun getFavicons(): Favicons
+
+	public fun onCreateConfig(keys: MutableCollection<ConfigKey<*>>)
+
+	public suspend fun getRelatedManga(seed: Manga): List<Manga>
+
+	public fun getRequestHeaders(): Headers
+
+	/**
+	 * Return [Manga] object by web link to it
+	 * @see [Manga.publicUrl]
+	 */
+	@InternalParsersApi
+	public suspend fun resolveLink(resolver: LinkResolver, link: HttpUrl): Manga?
+
+	@Deprecated("Use getList(query: MangaSearchQuery) instead")
+	public suspend fun getList(offset: Int, order: SortOrder, filter: MangaListFilter): List<Manga> {
+		return getList(convertToMangaSearchQuery(offset, order, filter))
+	}
+
+	@Deprecated("Please check searchQueryCapabilities")
+	public val filterCapabilities: MangaListFilterCapabilities
+		get() = searchQueryCapabilities.toMangaListFilterCapabilities()
+}

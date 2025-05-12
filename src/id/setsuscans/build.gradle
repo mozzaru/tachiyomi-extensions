@@ -1,0 +1,7 @@
+ext {
+    extName = 'mgkomik'
+    extClass = '.mgkomik'
+    overrideVersionCode = 2
+}
+
+apply from: "$rootDir/common.gradle"
