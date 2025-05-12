@@ -1,6 +1,6 @@
 name: Parsers test
 
-on:
+type:
     workflow_dispatch:
     pull_request:
         paths:
