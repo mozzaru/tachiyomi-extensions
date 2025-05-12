@@ -1,6 +1,6 @@
 package eu.kanade.tachiyomi.extension.id.mgkomik
 
-import eu.kanade.tachiyomi.multisrc.madara.Madara
+//import eu.kanade.tachiyomi.multisrc.madara.Madara
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.interceptor.rateLimit
 import eu.kanade.tachiyomi.source.model.Filter
@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import okhttp3.*
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
+//import org.jsoup.nodes.Document
 
 if (responseBody?.contains("Cloudflare") == true) {
     val document: Document = Jsoup.parse(responseBody)
